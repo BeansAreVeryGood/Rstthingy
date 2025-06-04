@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map of Atkaaq - "Clear Land"</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f7ff;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .info-card {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .leaflet-popup-content {
+            width: 300px !important;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem;
+        }
+        
+        .custom-icon {
+            background-color: #3B82F6;
+            border-radius: 50%;
+            border: 2px solid white;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .capital-icon {
+            background-color: #EF4444;
+        }
+        
+        .park-icon {
+            background-color: #10B981;
+        }
+        
+        .industry-icon {
+            background-color: #F59E0B;
+        }
+        
+        .culture-icon {
+            background-color: #8B5CF6;
+        }
+        
+        .water-icon {
+            background-color: #0EA5E9;
+        }
+        
+        .market-icon {
+            background-color: #EC4899;
+        }
+        
+        .health-icon {
+            background-color: #06B6D4;
+        }
+        
+        .energy-icon {
+            background-color: #FBBF24;
+        }
+        
+        .forest-icon {
+            background-color: #34D399;
+        }
+        
+        .food-icon {
+            background-color: #A3E635;
+        }
+        
+        .digital-icon {
+            background-color: #818CF8;
+        }
+        
+        .construction-icon {
+            background-color: #FB923C;
+        }
+        
+        .tourism-icon {
+            background-color: #C084FC;
+        }
+        
+        .tab-active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        
+        .tab {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .store-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .store-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .hospital-wing {
+            transition: all 0.3s ease;
+        }
+        
+        .hospital-wing:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .industry-card {
+            transition: all 0.3s ease;
+        }
+        
+        .industry-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-6 px-4 shadow-lg">
+            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold">Map of Atkaaq</h1>
+                    <p class="text-blue-100 mt-1">"Clear Land" - Canada's Newest Province</p>
+                </div>
+                <nav class="mt-4 md:mt-0">
+                    <ul class="flex space-x-6">
+                        <li><a href="#map-section" class="hover:text-yellow-300 transition">Map</a></li>
+                        <li><a href="#about" class="hover:text-yellow-300 transition">About</a></li>
+                        <li><a href="#info" class="hover:text-yellow-300 transition">Information</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- Introduction -->
+            <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to Atkaaq</h2>
+                <p class="text-gray-600 mb-4">Explore Canada's newest province, located between northern Manitoba and western Ontario, extending along the western shores of Hudson Bay. Atkaaq, meaning "Clear Land," is a province built on principles of sustainability, Indigenous governance, and harmony with nature.</p>
+                <p class="text-gray-600">Use the interactive map below to discover key locations, natural features, and learn about this unique province.</p>
+            </section>
+            
+            <!-- Map Section -->
+            <section id="map-section" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Interactive Map</h2>
+                <p class="text-gray-600 mb-6">Click on markers to learn more about specific locations in Atkaaq.</p>
+                
+                <div id="map"></div>
+                
+                <div class="mt-4 flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+                        <span class="text-sm">Capital City</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
+                        <span class="text-sm">National Parks</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
+                        <span class="text-sm">Industry</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-purple-500 mr-2"></div>
+                        <span class="text-sm">Cultural Sites</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+                        <span class="text-sm">Water Systems</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-pink-500 mr-2"></div>
+                        <span class="text-sm">Marketplace</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-cyan-500 mr-2"></div>
+                        <span class="text-sm">Healthcare</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Sustainable Industries</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-yellow-400 mr-2"></div>
+                            <span class="text-sm">Renewable Energy</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-emerald-400 mr-2"></div>
+                            <span class="text-sm">Eco-Forestry</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-lime-400 mr-2"></div>
+                            <span class="text-sm">Wild Foods & Medicine</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-indigo-400 mr-2"></div>
+                            <span class="text-sm">Digital Arts</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-orange-400 mr-2"></div>
+                            <span class="text-sm">Sustainable Construction</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-purple-400 mr-2"></div>
+                            <span class="text-sm">Eco-Tourism</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- About Section -->
+            <section id="about" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">About Atkaaq</h2>
+                
+                <!-- Tabs -->
+                <div class="flex flex-wrap mb-6 border-b overflow-x-auto">
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg tab-active" data-tab="geography">Geography</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="indigenous">Indigenous Lands</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="resources">Natural Resources</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="population">Population</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="sustainability">Sustainability</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="economy">Local Economy</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="healthcare">Healthcare</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="industries">Industries</button>
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="tab-content active" id="geography-content">
+                    <h3 class="text-xl font-bold text-blue-800 mb-3">Location & Geography</h3>
+                    <p class="mb-3"><strong>Location:</strong> Eastern edge of Manitoba to western Ontario, along the western shores of Hudson Bay</p>
+                    <p class="mb-3"><strong>Landform Regions:</strong> Crosses the Canadian Shield and Hudson Bay Lowlands</p>
+                    <p class="mb-3"><strong>Ecozones:</strong> Boreal Shield (south) and Hudson Plains (north)</p>
+                    
+                    <h4 class="text-lg font-bold text-blue-700 mt-4 mb-2">Physical Geography:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>Over 50,000 lakes and wetlands</li>
+                        <li>Dominated by taiga (coniferous forests), muskeg, rocky outcrops, and permafrost areas</li>
+                        <li>Mountainous ridges to the south formed by ancient volcanic activity, worn down by erosion</li>
+                        <li>Glaciation during the last Ice Age created the thin soils and rugged landscape</li>
+                    </ul>
+                </div>
+                
+                <div class="tab-content" id="indigenous-content">
+                    <h3 class="text-xl font-bold text-purple-800 mb-3">Indigenous Place Names & Land Recognition</h3>
+                    <p class="mb-3">Traditional territories of the Anishinaabe (Ojibwe), Ininew (Cree), Oji-Cree, and Métis Nation</p>
+                    
+                    <h4 class="text-lg font-bold text-purple-700 mt-4 mb-2">Cities and landmarks use Indigenous names alongside English:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li><strong>Capital city:</strong> Minoaski (Cree for "good land")</li>
+                        <li><strong>National park:</strong> Nibiwan Park (Ojibwe for "place of water")</li>
+                        <li><strong>Marketplace:</strong> Makwa Commons (Makwa = "bear" in Anishinaabemowin)</li>
+                    </ul>
+                    
+                    <p class="mt-3">Indigenous governance is embedded at every level — a co-leadership model includes Elders, hereditary chiefs, and elected officials</p>
+                </div>
+                
+                <div class="tab-content" id="resources-content">
+                    <h3 class="text-xl font-bold text-green-800 mb-3">Natural Resources & Sustainable Industries</h3>
+                    
+                    <h4 class="text-lg font-bold text-green-700 mt-4 mb-2">1. Freshwater Systems</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li><strong>Major river systems:</strong> Asinabka River, Kitchi-Gami Lakes, and underground aquifers</li>
+                        <li><strong>Used for:</strong> drinking water, hydroelectricity, fish farming</li>
+                        <li>Water is considered a "living relative" in Indigenous teachings — protected under a provincial Water Accord signed with local nations</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-green-700 mt-4 mb-2">2. Forestry and Wild Foods</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>Timber and birch products are sustainably harvested</li>
+                        <li>Wild rice, blueberries, and medicinal plants (e.g., sweetgrass) are also important economic goods</li>
+                        <li>All resource zones follow a 7-generation plan: thinking long-term about impacts</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-green-700 mt-4 mb-2">Sustainable Industries</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li><strong>Eco-Tourism:</strong> guided canoe routes, aurora lodges, and Indigenous cultural camps</li>
+                        <li><strong>Tech-Coops:</strong> Northern solar panel manufacturing with youth apprenticeships</li>
+                        <li><strong>Forest Schools:</strong> Education programs for children held outdoors, in connection with the land</li>
+                    </ul>
+                </div>
+                
+                <div class="tab-content" id="population-content">
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">Population & Community Design</h3>
+                    
+                    <h4 class="text-lg font-bold text-amber-700 mt-4 mb-2">Demographics</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li><strong>Population:</strong> ~800,000</li>
+                        <li>35% Indigenous, 40% newcomers/immigrants, 25% Canadian-born settlers</li>
+                        <li><strong>Official Languages:</strong> English, French, Cree, and Ojibwe</li>
+                        <li>Programs support language revitalization in schools and public signage</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-amber-700 mt-4 mb-2">Minoaski – Capital City</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>Planned with the concept of "Land Back + Future Forward"</li>
+                        <li>Mixed-use districts reduce the need for long commutes</li>
+                        <li>Mobility Hubs connect electric buses, snow trains, and lake ferries</li>
+                        <li>Buildings are designed for cold climates: triple-insulated walls, heated floors powered by solar-thermal systems</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-amber-700 mt-4 mb-2">Land Use Map Highlights:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>30% Conservation Areas (sacred sites, old-growth forests, and protected wetlands)</li>
+                        <li>25% Residential Zones (eco-villages, Indigenous housing clusters)</li>
+                        <li>20% Economic Zones (artisan markets, renewable energy tech parks)</li>
+                        <li>15% Transit/Infrastructure</li>
+                        <li>10% Community Services (schools, hospitals, learning circles)</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-amber-700 mt-4 mb-2">Shared Governance:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>The Atkaaq Land Council includes Indigenous Nations, settlers, and youth advisors</li>
+                        <li>Policies must be agreed upon by both the provincial assembly and Elders' Circle</li>
+                    </ul>
+                </div>
+                
+                <div class="tab-content" id="sustainability-content">
+                    <h3 class="text-xl font-bold text-blue-800 mb-3">Sustainability Plan</h3>
+                    
+                    <h4 class="text-lg font-bold text-blue-700 mt-4 mb-2">Transportation:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>No private gas vehicles</li>
+                        <li>Free public transit powered by solar, wind, and hydro energy</li>
+                        <li>Drones used for remote delivery in isolated winter regions</li>
+                        <li>"Green Trails" — bike paths that connect all major districts and include solar street lights</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-blue-700 mt-4 mb-2">Energy System:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>80% Hydroelectric (low-impact dams with fish ladders)</li>
+                        <li>15% Solar: rooftop panels and solar farms in open areas</li>
+                        <li>5% Wind: designed to avoid migratory bird routes</li>
+                        <li>Smart Grids and Battery Banks store extra energy for winter and emergencies</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-blue-700 mt-4 mb-2">Housing & Architecture:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>Passive Solar Design: large south-facing windows, natural materials, living roofs</li>
+                        <li>Modular longhouses in Indigenous areas blend tradition and efficiency</li>
+                        <li>Multi-generational housing models promote care-sharing and cultural continuity</li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-bold text-blue-700 mt-4 mb-2">Water & Food Systems:</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                        <li>Water protected through Indigenous Water Guardians programs</li>
+                        <li>Urban farms + forest gardens produce year-round food using permaculture</li>
+                        <li>Schools and homes have "Food Forest" patches — kids grow local crops with Elders</li>
+                    </ul>
+                </div>
+                
+                <div class="tab-content" id="economy-content">
+                    <h3 class="text-xl font-bold text-pink-800 mb-3">🛍️ Essential Stores and Local Economy</h3>
+                    
+                    <div class="bg-pink-50 border-l-4 border-pink-500 p-4 my-4">
+                        <h4 class="font-bold text-lg text-pink-800">Marketplace Name: Makwa Commons</h4>
+                        <p class="text-gray-700"><em>Makwa = "bear" in Anishinaabemowin, symbolizing strength and protection</em></p>
+                        <p class="text-gray-700 mt-2"><strong>Design:</strong> Open-air market surrounded by eco-friendly shops and co-ops</p>
+                        <p class="text-gray-700"><strong>Location:</strong> Near the central park and water transit terminal in Minoaski</p>
+                    </div>
+                    
+                    <h4 class="text-lg font-bold text-pink-700 mt-6 mb-4">Types of Stores:</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Wild Roots Food Co-op -->
+                        <div class="store-card bg-white rounded-lg shadow-md overflow-hidden border border-green-200">
+                            <div class="bg-green-100 px-4 py-2 border-b border-green-200">
+                                <h5 class="font-bold text-green-800">Wild Roots Food Co-op</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Locally grown produce (wild rice, root vegetables, berries)</li>
+                                    <li>• Traditional Indigenous foods: bannock, dried meat, corn, squash</li>
+                                    <li>• No plastic packaging – reusable baskets and glass jars only</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Wawatay General Store -->
+                        <div class="store-card bg-white rounded-lg shadow-md overflow-hidden border border-blue-200">
+                            <div class="bg-blue-100 px-4 py-2 border-b border-blue-200">
+                                <h5 class="font-bold text-blue-800">Wawatay General Store</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700">A Northern store alternative, co-owned by the community</p>
+                                <p class="font-medium text-gray-700">Carries:</p>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Essential goods: biodegradable soaps, winter gear, tools</li>
+                                    <li>• Electronics and solar chargers</li>
+                                    <li>• Locally made art and beadwork</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- The River Thread -->
+                        <div class="store-card bg-white rounded-lg shadow-md overflow-hidden border border-indigo-200">
+                            <div class="bg-indigo-100 px-4 py-2 border-b border-indigo-200">
+                                <h5 class="font-bold text-indigo-800">The River Thread</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700">Community clothing exchange and repair hub</p>
+                                <p class="font-medium text-gray-700">Offers:</p>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Handmade clothes from Indigenous designers</li>
+                                    <li>• Free sewing and mending workshops</li>
+                                    <li>• Winter boot and parka co-op program</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Mino-Foods Greenhouse -->
+                        <div class="store-card bg-white rounded-lg shadow-md overflow-hidden border border-emerald-200">
+                            <div class="bg-emerald-100 px-4 py-2 border-b border-emerald-200">
+                                <h5 class="font-bold text-emerald-800">Mino-Foods Greenhouse</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Year-round hydroponic produce: lettuce, tomatoes, herbs</li>
+                                    <li>• Powered by the nearby solar-hydro hybrid station</li>
+                                    <li>• Connected to local schools for farm-to-lunch programs</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Elder's Trading Lodge -->
+                        <div class="store-card bg-white rounded-lg shadow-md overflow-hidden border border-amber-200">
+                            <div class="bg-amber-100 px-4 py-2 border-b border-amber-200">
+                                <h5 class="font-bold text-amber-800">Elder's Trading Lodge</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700">Cultural gift shop and meeting place</p>
+                                <p class="mb-2 text-gray-700">Trade-based (bartering encouraged)</p>
+                                <p class="font-medium text-gray-700">Items:</p>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Carvings, medicine bundles</li>
+                                    <li>• Storytelling recordings</li>
+                                    <li>• Beadwork and traditional crafts</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg text-blue-800 mb-2">Economic Principles</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>Circular economy model - waste from one business becomes resource for another</li>
+                            <li>Community ownership through co-ops and shared equity models</li>
+                            <li>Bartering and time-banking systems complement traditional currency</li>
+                            <li>Focus on meeting local needs first, then export of sustainable goods</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="healthcare-content">
+                    <h3 class="text-xl font-bold text-cyan-800 mb-3">🏥 Healthcare System</h3>
+                    
+                    <div class="bg-cyan-50 border-l-4 border-cyan-500 p-4 my-4">
+                        <h4 class="font-bold text-lg text-cyan-800">Minoaski Integrated Wellness Centre</h4>
+                        <p class="text-gray-700"><strong>Type:</strong> Holistic Regional Hospital + Indigenous Health Lodge</p>
+                        <p class="text-gray-700"><strong>Location:</strong> Central Minoaski, accessible by public transport and near river ferry</p>
+                        <p class="text-gray-700"><strong>Structure:</strong> Circular building inspired by the medicine wheel, with four wings for physical, mental, spiritual, and emotional health</p>
+                    </div>
+                    
+                    <!-- Hospital SVG Visualization -->
+                    <div class="my-6 flex justify-center">
+                        <svg width="300" height="300" viewBox="0 0 300 300">
+                            <!-- Outer circle -->
+                            <circle cx="150" cy="150" r="140" fill="#E0F2FE" stroke="#0891B2" stroke-width="3"/>
+                            
+                            <!-- Medicine wheel divisions -->
+                            <line x1="150" y1="10" x2="150" y2="290" stroke="#0891B2" stroke-width="2"/>
+                            <line x1="10" y1="150" x2="290" y2="150" stroke="#0891B2" stroke-width="2"/>
+                            
+                            <!-- Center circle -->
+                            <circle cx="150" cy="150" r="40" fill="#0E7490" stroke="#0891B2" stroke-width="2"/>
+                            <text x="150" y="155" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Central Hub</text>
+                            
+                            <!-- Wing labels -->
+                            <text x="150" y="70" text-anchor="middle" fill="#0E7490" font-size="14" font-weight="bold">Physical</text>
+                            <text x="150" y="240" text-anchor="middle" fill="#0E7490" font-size="14" font-weight="bold">Mental</text>
+                            <text x="70" y="150" text-anchor="middle" fill="#0E7490" font-size="14" font-weight="bold">Emotional</text>
+                            <text x="230" y="150" text-anchor="middle" fill="#0E7490" font-size="14" font-weight="bold">Spiritual</text>
+                            
+                            <!-- Wing icons -->
+                            <circle cx="150" cy="50" r="15" fill="#06B6D4"/>
+                            <text x="150" y="55" text-anchor="middle" fill="white" font-size="14">🏥</text>
+                            
+                            <circle cx="150" cy="250" r="15" fill="#06B6D4"/>
+                            <text x="150" y="255" text-anchor="middle" fill="white" font-size="14">🧠</text>
+                            
+                            <circle cx="50" cy="150" r="15" fill="#06B6D4"/>
+                            <text x="50" y="155" text-anchor="middle" fill="white" font-size="14">❤️</text>
+                            
+                            <circle cx="250" cy="150" r="15" fill="#06B6D4"/>
+                            <text x="250" y="155" text-anchor="middle" fill="white" font-size="14">🌿</text>
+                        </svg>
+                    </div>
+                    
+                    <h4 class="text-lg font-bold text-cyan-700 mt-6 mb-4">Hospital Features:</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Emergency & Acute Care Wing -->
+                        <div class="hospital-wing bg-white rounded-lg shadow-md overflow-hidden border border-red-200">
+                            <div class="bg-red-100 px-4 py-2 border-b border-red-200">
+                                <h5 class="font-bold text-red-800">Emergency & Acute Care Wing</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Solar-powered trauma center</li>
+                                    <li>• Helipad for emergency transport from remote villages</li>
+                                    <li>• Mobile care vans for rural outreach</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Traditional Medicine Wing -->
+                        <div class="hospital-wing bg-white rounded-lg shadow-md overflow-hidden border border-green-200">
+                            <div class="bg-green-100 px-4 py-2 border-b border-green-200">
+                                <h5 class="font-bold text-green-800">Traditional Medicine Wing</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Run by Indigenous healers and Elders</li>
+                                    <li>• Healing gardens with sweetgrass, cedar, and tobacco</li>
+                                    <li>• Sweat lodge and ceremonial space outdoors</li>
+                                    <li>• Use of traditional practices like smudging, talking circles, and herbal remedies</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Mental Health & Youth Support -->
+                        <div class="hospital-wing bg-white rounded-lg shadow-md overflow-hidden border border-purple-200">
+                            <div class="bg-purple-100 px-4 py-2 border-b border-purple-200">
+                                <h5 class="font-bold text-purple-800">Mental Health & Youth Support</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Youth cultural therapy programs</li>
+                                    <li>• Indigenous-focused trauma counseling</li>
+                                    <li>• Land-based therapy (hiking, canoeing, and nature connection)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Birthing Centre -->
+                        <div class="hospital-wing bg-white rounded-lg shadow-md overflow-hidden border border-blue-200">
+                            <div class="bg-blue-100 px-4 py-2 border-b border-blue-200">
+                                <h5 class="font-bold text-blue-800">Birthing Centre</h5>
+                            </div>
+                            <div class="p-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Midwife-led Indigenous birth program</li>
+                                    <li>• Water birth and ceremonial options</li>
+                                    <li>• Partnership with Doulas trained in cultural safety</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-emerald-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg text-emerald-800 mb-2">Sustainability Features</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>Net-zero emissions with green roof, solar panels, and rainwater reuse</li>
+                            <li>All food sourced from local greenhouses and traditional gardens</li>
+                            <li>Built using natural materials (stone, pine, hempcrete)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg text-blue-800 mb-2">Healthcare Principles</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>Integration of Western medicine and Indigenous healing practices</li>
+                            <li>Focus on preventative care and community wellness</li>
+                            <li>Culturally appropriate care for diverse populations</li>
+                            <li>Training programs for Indigenous healthcare providers</li>
+                            <li>Remote telehealth services for outlying communities</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="industries-content">
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">🏭 Sustainable Industries</h3>
+                    
+                    <p class="text-gray-700 mb-6">Atkaaq's economy is built on sustainable industries that blend traditional Indigenous knowledge with modern innovation. These industries create jobs while respecting the land and supporting community well-being.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Renewable Energy Innovation Hub -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-yellow-200">
+                            <div class="bg-yellow-100 px-4 py-2 border-b border-yellow-200 flex items-center">
+                                <span class="text-2xl mr-2">⚡</span>
+                                <h5 class="font-bold text-yellow-800">Renewable Energy Innovation Hub</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> Wind Ridge Valley, Southern Atkaaq</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Designs and manufactures solar panels, micro wind turbines, and biomass stoves for northern homes</li>
+                                    <li>• Operates a research centre partnered with Lakehead University and Indigenous engineers</li>
+                                    <li>• Trains high school grads through paid apprenticeships</li>
+                                </ul>
+                                <div class="bg-yellow-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-yellow-800">Why it matters:</p>
+                                    <p class="text-gray-700">Atkaaq doesn't just use green energy — it builds the tools to help other provinces go green too.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Forest Knowledge Centre -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-emerald-200">
+                            <div class="bg-emerald-100 px-4 py-2 border-b border-emerald-200 flex items-center">
+                                <span class="text-2xl mr-2">🌲</span>
+                                <h5 class="font-bold text-emerald-800">Forest Knowledge Centre</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> Great Pines Region</p>
+                                <p class="mb-2 text-gray-700"><strong>Industry:</strong> Eco-Forestry & Indigenous Land Stewardship</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Harvests wood using selective cutting, regenerative planting, and carbon credit banking</li>
+                                    <li>• Hosts workshops on fire management and traditional birchbark canoe building</li>
+                                    <li>• Forest schools educate youth on science and ceremony side-by-side</li>
+                                </ul>
+                                <div class="bg-emerald-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-emerald-800">Why it matters:</p>
+                                    <p class="text-gray-700">Protects jobs and biodiversity — guided by traditional knowledge.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Wild Foods & Medicine Economy -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-lime-200">
+                            <div class="bg-lime-100 px-4 py-2 border-b border-lime-200 flex items-center">
+                                <span class="text-2xl mr-2">🌱</span>
+                                <h5 class="font-bold text-lime-800">Wild Foods & Medicine Economy</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> Riverbend Wetlands & Northern Lakes</p>
+                                <p class="mb-2 text-gray-700"><strong>Industry:</strong> Agri-Food + Indigenous Health Products</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Grows and exports: wild rice, blueberries, cedar, chaga mushrooms, sweetgrass, Labrador tea</li>
+                                    <li>• Partners with Elders to produce traditional salves, teas, and tinctures</li>
+                                    <li>• Certified by both western health boards and Indigenous governance councils</li>
+                                </ul>
+                                <div class="bg-lime-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-lime-800">Why it matters:</p>
+                                    <p class="text-gray-700">Blends science + Indigenous knowledge into a clean, regenerative business.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Digital & Creative Arts Co-ops -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-indigo-200">
+                            <div class="bg-indigo-100 px-4 py-2 border-b border-indigo-200 flex items-center">
+                                <span class="text-2xl mr-2">🎨</span>
+                                <h5 class="font-bold text-indigo-800">Digital & Creative Arts Co-ops</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> Capital city Minoaski, and satellite communities</p>
+                                <p class="mb-2 text-gray-700"><strong>Industry:</strong> Digital Storytelling, Animation, App Design, Fashion</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Indigenous-run studios create animated films, video games, and virtual reality tours based on land stories</li>
+                                    <li>• App developers design land-based learning apps and language revival platforms</li>
+                                    <li>• Fashion co-ops make clothing with climate-adapted materials and traditional design</li>
+                                </ul>
+                                <div class="bg-indigo-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-indigo-800">Why it matters:</p>
+                                    <p class="text-gray-700">Exports culture and creates remote-friendly jobs — no mines needed.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cold Climate Construction Co. -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-orange-200">
+                            <div class="bg-orange-100 px-4 py-2 border-b border-orange-200 flex items-center">
+                                <span class="text-2xl mr-2">🏗️</span>
+                                <h5 class="font-bold text-orange-800">Cold Climate Construction Co.</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> All-season base near the central lake region</p>
+                                <p class="mb-2 text-gray-700"><strong>Industry:</strong> Sustainable Construction & Architecture</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Builds modular homes with hempcrete, reclaimed wood, and stone</li>
+                                    <li>• Winter-proof buildings: solar-heated floors, triple-glazed windows, smart insulation</li>
+                                    <li>• Partners with the College of the North to train builders and designers</li>
+                                </ul>
+                                <div class="bg-orange-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-orange-800">Why it matters:</p>
+                                    <p class="text-gray-700">Fights the housing crisis in northern communities — sustainably.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Eco-Tourism & Cultural Exchange Network -->
+                        <div class="industry-card bg-white rounded-lg shadow-md overflow-hidden border border-purple-200">
+                            <div class="bg-purple-100 px-4 py-2 border-b border-purple-200 flex items-center">
+                                <span class="text-2xl mr-2">🏞️</span>
+                                <h5 class="font-bold text-purple-800">Eco-Tourism & Cultural Exchange Network</h5>
+                            </div>
+                            <div class="p-4">
+                                <p class="mb-2 text-gray-700"><strong>Location:</strong> Province-wide, centered in Minoaski and Nibiwan Park</p>
+                                <p class="mb-2 text-gray-700"><strong>Industry:</strong> Tourism, Education, Indigenous Culture</p>
+                                <p class="font-medium text-gray-700 mt-3">What it does:</p>
+                                <p class="mb-2 text-gray-700">Visitors come for:</p>
+                                <ul class="space-y-2 text-gray-700 mb-3">
+                                    <li>• Aurora Borealis viewing lodges</li>
+                                    <li>• Canoe trips with Indigenous guides</li>
+                                    <li>• Story camps and sweat lodge experiences</li>
+                                </ul>
+                                <p class="mb-2 text-gray-700">Local teens get job placements in hospitality, outdoor safety, and translation</p>
+                                <div class="bg-purple-50 p-3 rounded-lg mt-3">
+                                    <p class="font-medium text-purple-800">Why it matters:</p>
+                                    <p class="text-gray-700">Builds respect for the land, creates jobs, and centers Indigenous leadership.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-amber-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg text-amber-800 mb-2">Economic Impact</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>These six industry sectors employ over 40% of Atkaaq's workforce</li>
+                            <li>All industries follow the "7-generation sustainability" principle</li>
+                            <li>Co-operative ownership models ensure profits stay in local communities</li>
+                            <li>Training programs create pathways for youth to build careers without leaving home</li>
+                            <li>Export markets focus on high-value, low-impact products that showcase Indigenous knowledge</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Information Section -->
+            <section id="info" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Add Your Information</h2>
+                <p class="text-gray-600 mb-6">Contribute to our knowledge of Atkaaq by adding your own information about specific locations.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-700 mb-2">Select Location</h3>
+                        <select id="location-select" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Select a location --</option>
+                            <option value="minoaski">Minoaski (Capital City)</option>
+                            <option value="nibiwan">Nibiwan Park</option>
+                            <option value="asinabka">Asinabka River</option>
+                            <option value="kitchigami">Kitchi-Gami Lakes</option>
+                            <option value="ecovillage">Northern Eco-Village</option>
+                            <option value="solar">Solar Manufacturing Hub</option>
+                            <option value="cultural">Indigenous Cultural Center</option>
+                            <option value="makwa">Makwa Commons Marketplace</option>
+                            <option value="wildroots">Wild Roots Food Co-op</option>
+                            <option value="wawatay">Wawatay General Store</option>
+                            <option value="riverthread">The River Thread</option>
+                            <option value="minofoods">Mino-Foods Greenhouse</option>
+                            <option value="elderslodge">Elder's Trading Lodge</option>
+                            <option value="hospital">Minoaski Integrated Wellness Centre</option>
+                            <option value="energy">Renewable Energy Innovation Hub</option>
+                            <option value="forest">Forest Knowledge Centre</option>
+                            <option value="wildfoods">Wild Foods & Medicine Economy</option>
+                            <option value="digital">Digital & Creative Arts Co-ops</option>
+                            <option value="construction">Cold Climate Construction Co.</option>
+                            <option value="tourism">Eco-Tourism & Cultural Exchange Network</option>
+                        </select>
+                        
+                        <h3 class="text-lg font-bold text-gray-700 mt-4 mb-2">Your Information</h3>
+                        <textarea id="user-info" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="6" placeholder="Add your information about this location..."></textarea>
+                        
+                        <button id="save-info" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                            Save Information
+                        </button>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 class="text-lg font-bold text-blue-800 mb-2">Saved Information</h3>
+                        <div id="saved-info" class="info-card">
+                            <p class="text-gray-500 italic">Select a location and add information to see it displayed here.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8 px-4">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <h2 class="text-xl font-bold">Map of Atkaaq</h2>
+                        <p class="text-gray-400">"Clear Land" - Canada's Newest Province</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400">&copy; 2023 Atkaaq Provincial Authority</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([55.5, -92], 5); // Approximate location between Manitoba and Ontario
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Custom icon function
+        function createCustomIcon(className) {
+            return L.divIcon({
+                className: `custom-icon ${className}`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, -12]
+            });
+        }
+        
+        // Define icons
+        const capitalIcon = createCustomIcon('capital-icon');
+        const parkIcon = createCustomIcon('park-icon');
+        const industryIcon = createCustomIcon('industry-icon');
+        const cultureIcon = createCustomIcon('culture-icon');
+        const waterIcon = createCustomIcon('water-icon');
+        const marketIcon = createCustomIcon('market-icon');
+        const healthIcon = createCustomIcon('health-icon');
+        const energyIcon = createCustomIcon('energy-icon');
+        const forestIcon = createCustomIcon('forest-icon');
+        const foodIcon = createCustomIcon('food-icon');
+        const digitalIcon = createCustomIcon('digital-icon');
+        const constructionIcon = createCustomIcon('construction-icon');
+        const tourismIcon = createCustomIcon('tourism-icon');
+        
+        // Define province boundary (simplified polygon)
+        const atkaaqBoundary = [
+            [54.5, -95.0],
+            [56.5, -94.0],
+            [57.5, -91.0],
+            [57.0, -88.0],
+            [55.0, -87.0],
+            [53.5, -89.0],
+            [53.0, -92.0],
+            [54.5, -95.0]
+        ];
+        
+        // Add province boundary
+        L.polygon(atkaaqBoundary, {
+            color: '#3B82F6',
+            fillColor: '#93C5FD',
+            fillOpacity: 0.3,
+            weight: 3
+        }).addTo(map).bindPopup('<h3 class="font-bold text-lg">Atkaaq Province</h3><p>"Clear Land" - Canada\'s newest province</p>');
+        
+        // Location data
+        const locations = [
+            {
+                name: "Minoaski",
+                description: "Capital City (Cree for 'good land')",
+                details: `<h3 class="font-bold text-lg text-red-700">Minoaski - Capital City</h3>
+                          <p class="mb-2">Planned with the concept of "Land Back + Future Forward", Minoaski is a model of sustainable urban design.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Mixed-use districts reduce the need for long commutes</li>
+                            <li>Mobility Hubs connect electric buses, snow trains, and lake ferries</li>
+                            <li>Buildings feature triple-insulated walls and heated floors powered by solar-thermal systems</li>
+                            <li>Population: ~250,000</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Minoaski.</p>`,
+                latlng: [55.8, -92.5],
+                icon: capitalIcon
+            },
+            {
+                name: "Nibiwan Park",
+                description: "National Park (Ojibwe for 'place of water')",
+                details: `<h3 class="font-bold text-lg text-green-700">Nibiwan Park</h3>
+                          <p class="mb-2">A vast protected wilderness showcasing the pristine beauty of Atkaaq's boreal forests and lake systems.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Over 10,000 lakes and wetlands</li>
+                            <li>Home to diverse wildlife including moose, black bears, wolves, and migratory birds</li>
+                            <li>Indigenous-led conservation programs and guided experiences</li>
+                            <li>Sustainable eco-tourism with minimal environmental impact</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Nibiwan Park.</p>`,
+                latlng: [56.2, -90.8],
+                icon: parkIcon
+            },
+            {
+                name: "Asinabka River",
+                description: "Major river system",
+                details: `<h3 class="font-bold text-lg text-blue-700">Asinabka River</h3>
+                          <p class="mb-2">One of Atkaaq's most important waterways, the Asinabka River is both a vital resource and cultural landmark.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Provides drinking water and sustainable hydroelectricity</li>
+                            <li>Traditional transportation route for Indigenous communities</li>
+                            <li>Protected by the Water Accord and Indigenous Water Guardians</li>
+                            <li>Features low-impact dams with fish ladders to protect aquatic life</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Asinabka River.</p>`,
+                latlng: [55.3, -91.2],
+                icon: waterIcon
+            },
+            {
+                name: "Kitchi-Gami Lakes",
+                description: "Major lake system",
+                details: `<h3 class="font-bold text-lg text-blue-700">Kitchi-Gami Lakes</h3>
+                          <p class="mb-2">An interconnected system of large freshwater lakes that form the heart of Atkaaq's water resources.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Supports sustainable fish farming and traditional fishing practices</li>
+                            <li>Lake ferries connect communities along the shorelines</li>
+                            <li>Sacred sites for Indigenous ceremonies and gatherings</li>
+                            <li>Research stations monitor water quality and climate change impacts</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Kitchi-Gami Lakes.</p>`,
+                latlng: [56.7, -89.5],
+                icon: waterIcon
+            },
+            {
+                name: "Northern Eco-Village",
+                description: "Sustainable community model",
+                details: `<h3 class="font-bold text-lg text-amber-700">Northern Eco-Village</h3>
+                          <p class="mb-2">A model community showcasing Atkaaq's approach to sustainable northern living.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Passive solar design with large south-facing windows</li>
+                            <li>Multi-generational housing promotes care-sharing and cultural continuity</li>
+                            <li>Food forests and community greenhouses provide year-round local food</li>
+                            <li>100% renewable energy with smart grid and battery storage</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Northern Eco-Village.</p>`,
+                latlng: [54.8, -93.2],
+                icon: industryIcon
+            },
+            {
+                name: "Solar Manufacturing Hub",
+                description: "Tech-Coop for renewable energy",
+                details: `<h3 class="font-bold text-lg text-amber-700">Solar Manufacturing Hub</h3>
+                          <p class="mb-2">A cooperative manufacturing center producing solar panels adapted for northern climates.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Youth apprenticeship programs provide skills training and employment</li>
+                            <li>Research facility develops cold-climate renewable technologies</li>
+                            <li>Worker-owned cooperative business model</li>
+                            <li>Zero-waste manufacturing processes</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Solar Manufacturing Hub.</p>`,
+                latlng: [55.5, -93.8],
+                icon: industryIcon
+            },
+            {
+                name: "Indigenous Cultural Center",
+                description: "Cultural preservation and education",
+                details: `<h3 class="font-bold text-lg text-purple-700">Indigenous Cultural Center</h3>
+                          <p class="mb-2">A hub for preserving and celebrating the cultures of the Anishinaabe, Ininew, Oji-Cree, and Métis peoples.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Language revitalization programs and immersion schools</li>
+                            <li>Traditional arts, crafts, and knowledge sharing</li>
+                            <li>Cultural camps and land-based education</li>
+                            <li>Museum and living history exhibits</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Indigenous Cultural Center.</p>`,
+                latlng: [54.2, -90.5],
+                icon: cultureIcon
+            },
+            {
+                name: "Makwa Commons",
+                description: "Marketplace (Makwa = 'bear' in Anishinaabemowin)",
+                details: `<h3 class="font-bold text-lg text-pink-700">Makwa Commons Marketplace</h3>
+                          <p class="mb-2">An open-air market surrounded by eco-friendly shops and co-ops, located near the central park and water transit terminal in Minoaski.</p>
+                          <p class="mb-2"><em>Makwa = "bear" in Anishinaabemowin, symbolizing strength and protection</em></p>
+                          <p class="font-medium text-gray-700 mt-3">Featured Stores:</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Wild Roots Food Co-op - Local produce and traditional foods</li>
+                            <li>Wawatay General Store - Community-owned essential goods</li>
+                            <li>The River Thread - Clothing exchange and repair hub</li>
+                            <li>Mino-Foods Greenhouse - Year-round hydroponic produce</li>
+                            <li>Elder's Trading Lodge - Cultural gift shop with bartering system</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Makwa Commons.</p>`,
+                latlng: [55.75, -92.4],
+                icon: marketIcon
+            },
+            {
+                name: "Wild Roots Food Co-op",
+                description: "Local food store",
+                details: `<h3 class="font-bold text-lg text-green-700">Wild Roots Food Co-op</h3>
+                          <p class="mb-2">A community-owned food cooperative specializing in locally grown produce and traditional Indigenous foods.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Locally grown produce (wild rice, root vegetables, berries)</li>
+                            <li>Traditional Indigenous foods: bannock, dried meat, corn, squash</li>
+                            <li>No plastic packaging – reusable baskets and glass jars only</li>
+                            <li>Seasonal harvesting workshops and cooking classes</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Wild Roots Food Co-op.</p>`,
+                latlng: [55.74, -92.38],
+                icon: marketIcon
+            },
+            {
+                name: "Wawatay General Store",
+                description: "Community-owned general store",
+                details: `<h3 class="font-bold text-lg text-blue-700">Wawatay General Store</h3>
+                          <p class="mb-2">A Northern store alternative, co-owned by the community, providing essential goods with sustainable practices.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Essential goods: biodegradable soaps, winter gear, tools</li>
+                            <li>Electronics and solar chargers</li>
+                            <li>Locally made art and beadwork</li>
+                            <li>Community profit-sharing model</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Wawatay General Store.</p>`,
+                latlng: [55.76, -92.42],
+                icon: marketIcon
+            },
+            {
+                name: "The River Thread",
+                description: "Clothing exchange and repair hub",
+                details: `<h3 class="font-bold text-lg text-indigo-700">The River Thread</h3>
+                          <p class="mb-2">Community clothing exchange and repair hub promoting sustainable fashion and traditional textile arts.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Handmade clothes from Indigenous designers</li>
+                            <li>Free sewing and mending workshops</li>
+                            <li>Winter boot and parka co-op program</li>
+                            <li>Textile upcycling and traditional craft techniques</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about The River Thread.</p>`,
+                latlng: [55.73, -92.41],
+                icon: marketIcon
+            },
+            {
+                name: "Mino-Foods Greenhouse",
+                description: "Year-round hydroponic produce",
+                details: `<h3 class="font-bold text-lg text-emerald-700">Mino-Foods Greenhouse</h3>
+                          <p class="mb-2">An innovative greenhouse providing year-round fresh produce using sustainable hydroponic systems.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Year-round hydroponic produce: lettuce, tomatoes, herbs</li>
+                            <li>Powered by the nearby solar-hydro hybrid station</li>
+                            <li>Connected to local schools for farm-to-lunch programs</li>
+                            <li>Training programs in sustainable agriculture</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Mino-Foods Greenhouse.</p>`,
+                latlng: [55.77, -92.39],
+                icon: marketIcon
+            },
+            {
+                name: "Elder's Trading Lodge",
+                description: "Cultural gift shop with bartering system",
+                details: `<h3 class="font-bold text-lg text-amber-700">Elder's Trading Lodge</h3>
+                          <p class="mb-2">A cultural gift shop and meeting place that preserves traditional trading practices through a bartering system.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Cultural gift shop and meeting place</li>
+                            <li>Trade-based (bartering encouraged)</li>
+                            <li>Items: Carvings, medicine bundles, storytelling recordings, beadwork</li>
+                            <li>Regular knowledge-sharing circles led by community Elders</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Elder's Trading Lodge.</p>`,
+                latlng: [55.75, -92.37],
+                icon: marketIcon
+            },
+            {
+                name: "Minoaski Integrated Wellness Centre",
+                description: "Holistic Regional Hospital + Indigenous Health Lodge",
+                details: `<h3 class="font-bold text-lg text-cyan-700">Minoaski Integrated Wellness Centre</h3>
+                          <p class="mb-2">A holistic healthcare facility that combines Western medicine with Indigenous healing practices.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Circular building inspired by the medicine wheel with four wings</li>
+                            <li>Emergency & Acute Care Wing with solar-powered trauma center</li>
+                            <li>Traditional Medicine Wing run by Indigenous healers and Elders</li>
+                            <li>Mental Health & Youth Support with land-based therapy programs</li>
+                            <li>Midwife-led Indigenous birth program with ceremonial options</li>
+                            <li>Net-zero emissions with green roof and natural building materials</li>
+                          </ul>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Wellness Centre.</p>`,
+                latlng: [55.82, -92.45],
+                icon: healthIcon
+            },
+            {
+                name: "Renewable Energy Innovation Hub",
+                description: "Green energy technology development",
+                details: `<h3 class="font-bold text-lg text-yellow-700">Renewable Energy Innovation Hub</h3>
+                          <p class="mb-2">A center for designing and manufacturing sustainable energy solutions adapted for northern climates.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Designs and manufactures solar panels, micro wind turbines, and biomass stoves for northern homes</li>
+                            <li>Operates a research centre partnered with Lakehead University and Indigenous engineers</li>
+                            <li>Trains high school grads through paid apprenticeships</li>
+                          </ul>
+                          <p class="font-medium text-yellow-700 mt-3">Why it matters:</p>
+                          <p class="text-gray-700 mb-3">Atkaaq doesn't just use green energy — it builds the tools to help other provinces go green too.</p>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Energy Innovation Hub.</p>`,
+                latlng: [53.8, -93.5],
+                icon: energyIcon
+            },
+            {
+                name: "Forest Knowledge Centre",
+                description: "Eco-Forestry & Indigenous Land Stewardship",
+                details: `<h3 class="font-bold text-lg text-emerald-700">Forest Knowledge Centre</h3>
+                          <p class="mb-2">A sustainable forestry operation that combines traditional knowledge with modern conservation practices.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Harvests wood using selective cutting, regenerative planting, and carbon credit banking</li>
+                            <li>Hosts workshops on fire management and traditional birchbark canoe building</li>
+                            <li>Forest schools educate youth on science and ceremony side-by-side</li>
+                          </ul>
+                          <p class="font-medium text-emerald-700 mt-3">Why it matters:</p>
+                          <p class="text-gray-700 mb-3">Protects jobs and biodiversity — guided by traditional knowledge.</p>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about the Forest Knowledge Centre.</p>`,
+                latlng: [54.5, -91.5],
+                icon: forestIcon
+            },
+            {
+                name: "Wild Foods & Medicine Economy",
+                description: "Agri-Food + Indigenous Health Products",
+                details: `<h3 class="font-bold text-lg text-lime-700">Wild Foods & Medicine Economy</h3>
+                          <p class="mb-2">A cooperative that harvests, processes, and distributes traditional foods and medicines from the land.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Grows and exports: wild rice, blueberries, cedar, chaga mushrooms, sweetgrass, Labrador tea</li>
+                            <li>Partners with Elders to produce traditional salves, teas, and tinctures</li>
+                            <li>Certified by both western health boards and Indigenous governance councils</li>
+                          </ul>
+                          <p class="font-medium text-lime-700 mt-3">Why it matters:</p>
+                          <p class="text-gray-700 mb-3">Blends science + Indigenous knowledge into a clean, regenerative business.</p>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Wild Foods & Medicine.</p>`,
+                latlng: [56.0, -88.5],
+                icon: foodIcon
+            },
+            {
+                name: "Digital & Creative Arts Co-ops",
+                description: "Digital Storytelling, Animation, App Design, Fashion",
+                details: `<h3 class="font-bold text-lg text-indigo-700">Digital & Creative Arts Co-ops</h3>
+                          <p class="mb-2">A network of Indigenous-led creative studios developing digital media, apps, and fashion.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Indigenous-run studios create animated films, video games, and virtual reality tours based on land stories</li>
+                            <li>App developers design land-based learning apps and language revival platforms</li>
+                            <li>Fashion co-```
