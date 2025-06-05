@@ -1171,4 +1171,84 @@
                           <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
                             <li>Indigenous-run studios create animated films, video games, and virtual reality tours based on land stories</li>
                             <li>App developers design land-based learning apps and language revival platforms</li>
-                            <li>Fashion co-```
+                            <li>Fashion co-ops make clothing with climate-adapted materials and traditional design</li>
+                          </ul>
+                          <p class="font-medium text-indigo-800">Why it matters:</p>
+                          <p class="text-gray-700 mb-3">Exports culture and creates remote-friendly jobs — no mines needed.</p>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Digital & Creative Arts Co-ops.</p>`,
+                latlng: [55.0, -90.0],
+                icon: digitalIcon
+            },
+            {
+                name: "Cold Climate Construction Co.",
+                description: "Sustainable Construction & Architecture",
+                details: `<h3 class="font-bold text-lg text-orange-700">Cold Climate Construction Co.</h3>
+                          <p class="mb-2">A company specializing in sustainable building practices and materials for northern climates.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>Builds modular homes with hempcrete, reclaimed wood, and stone</li>
+                            <li>Winter-proof buildings: solar-heated floors, triple-glazed windows, smart insulation</li>
+                            <li>Partners with the College of the North to train builders and designers</li>
+                          </ul>
+                          <p class="font-medium text-orange-700 mt-3">Why it matters:</p>
+                          <p class="text-gray-700 mb-3">Fights the housing crisis in northern communities — sustainably.</p>
+                          <p class="italic text-sm text-gray-500">Click "Add Information" to contribute your knowledge about Cold Climate Construction Co.</p>`,
+                latlng: [55.0, -91.0],
+                icon: constructionIcon
+            },
+            {
+                name: "Eco-Tourism & Cultural Exchange Network",
+                description: "Tourism, Education, Indigenous Culture",
+                details: `<h3 class="font-bold text-lg text-purple-700">Eco-Tourism & Cultural Exchange Network</h3>
+                          <p class="mb-2">A network of eco-friendly tourism experiences and cultural exchanges across Atkaaq.</p>
+                          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-3">
+                            <li>• Aurora Borealis viewing lodges</li>
+                            <li>• Canoe trips with Indigenous guides</li>
+                            <li>• Story camps and sweat lodge experiences</li>
+                          </ul>
+                          <p class="mb-2 text-gray-700">Local teens get job placements in hospitality, outdoor safety, and translation</p>
+                          <div class="bg-purple-50 p-3 rounded-lg mt-3">
+                            <p class="font-medium text-purple-800">Why it matters:</p>
+                            <p class="text-gray-700">Builds respect for the land, creates jobs, and centers Indigenous leadership.</p>
+                          </div>`,
+                latlng: [55.2, -90.8],
+                icon: tourismIcon
+            },
+        ];
+        
+        // Add markers for each location
+        locations.forEach(loc => {
+            L.marker(loc.latlng, { icon: loc.icon })
+                .addTo(map)
+                .bindPopup(loc.details);
+        });
+
+        // Optional: Fit map bounds to all markers and boundary
+        const allLatLngs = [
+            ...locations.map(loc => loc.latlng),
+            ...atkaaqBoundary
+        ];
+        map.fitBounds(allLatLngs);
+    </script>
+    <script>
+      // Tabs for About section
+      document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+          btn.addEventListener('click', function () {
+            // Remove active from all tabs and contents
+            tabButtons.forEach(b => b.classList.remove('tab-active'));
+            tabContents.forEach(tc => tc.classList.remove('active'));
+
+            // Add active to clicked tab and corresponding content
+            btn.classList.add('tab-active');
+            const tabName = btn.getAttribute('data-tab');
+            const content = document.getElementById(tabName + '-content');
+            if (content) content.classList.add('active');
+          });
+        });
+      });
+    </script>
+</body>
+</html>
