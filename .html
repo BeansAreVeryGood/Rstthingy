@@ -153,6 +153,10 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
+        
+        .landmark-icon {
+            background-color: #6B7280; /* Tailwind gray-500 */
+        }
     </style>
 </head>
 <body>
@@ -266,6 +270,7 @@
                     <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="economy">Local Economy</button>
                     <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="healthcare">Healthcare</button>
                     <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="industries">Industries</button>
+                    <button class="tab px-4 py-2 font-medium rounded-t-lg" data-tab="landmarks">Land Marks</button>
                 </div>
                 
                 <!-- Tab Content -->
@@ -804,6 +809,12 @@
                             <option value="digital">Digital & Creative Arts Co-ops</option>
                             <option value="construction">Cold Climate Construction Co.</option>
                             <option value="tourism">Eco-Tourism & Cultural Exchange Network</option>
+                            <option value="sky_drums">The Sky Drum Cliffs</option>
+                            <option value="wapan_lake">Lake Wâpan (Morning Lake)</option>
+                            <option value="nibiwan_falls">Nibiwan Falls</option>
+                            <option value="fire_circle">The Fire Circle Amphitheatre</option>
+                            <option value="cultural_archives">The Atkaaq Cultural Archives</option>
+                            <option value="skyglass_bridge">Boreal Skyglass Bridge</option>
                         </select>
                         
                         <h3 class="text-lg font-bold text-gray-700 mt-4 mb-2">Your Information</h3>
@@ -877,6 +888,7 @@
         const digitalIcon = createCustomIcon('digital-icon');
         const constructionIcon = createCustomIcon('construction-icon');
         const tourismIcon = createCustomIcon('tourism-icon');
+        const landmarkIcon = createCustomIcon('landmark-icon');
         
         // Define province boundary (simplified polygon)
         const atkaaqBoundary = [
@@ -1213,13 +1225,75 @@
                 latlng: [55.2, -90.8],
                 icon: tourismIcon
             },
+            {
+                name: "The Sky Drum Cliffs",
+                description: "Limestone cliffs, Indigenous ceremonies",
+                details: `<h3 class="font-bold text-lg text-gray-700">The Sky Drum Cliffs</h3>
+                          <p>Eastern shore of Hudson Bay.<br>
+                          Named for drum songs echoing off the cliffs during full moons.<br>
+                          Popular for northern lights, rock climbing, and Indigenous ceremonies.</p>`,
+                latlng: [56.0, -88.5],
+                icon: landmarkIcon
+            },
+            {
+                name: "Lake Wâpan (Morning Lake)",
+                description: "Pink sunrise lake, healing lodges",
+                details: `<h3 class="font-bold text-lg text-gray-700">Lake Wâpan (Morning Lake)</h3>
+                          <p>Central Atkaaq, near Minoaski.<br>
+                          Known for pink sunrise reflections, clear water, and traditional fishing.<br>
+                          Healing lodges and learning camps on the shore.</p>`,
+                latlng: [55.7, -92.0],
+                icon: landmarkIcon
+            },
+            {
+                name: "Nibiwan Falls",
+                description: "Sacred waterfall, micro-hydro",
+                details: `<h3 class="font-bold text-lg text-gray-700">Nibiwan Falls (“Place of the Water Spirit”)</h3>
+                          <p>Near the northern mountains.<br>
+                          Sacred 70m waterfall, spiritual site for healers and Elders.<br>
+                          Home to eagles and rare birds. Nearby micro-hydro station.</p>`,
+                latlng: [57.2, -90.0],
+                icon: landmarkIcon
+            },
+            {
+                name: "The Fire Circle Amphitheatre",
+                description: "Outdoor gathering, powwows",
+                details: `<h3 class="font-bold text-lg text-gray-700">The Fire Circle Amphitheatre</h3>
+                          <p>Minoaski city centre, Makwa Commons.<br>
+                          Medicine wheel-shaped amphitheatre for powwows, storytelling, and festivals.<br>
+                          Surrounded by pine trees and stone benches.</p>`,
+                latlng: [55.8, -92.5],
+                icon: landmarkIcon
+            },
+            {
+                name: "The Atkaaq Cultural Archives",
+                description: "Archives, oral stories, virtual museum",
+                details: `<h3 class="font-bold text-lg text-gray-700">The Atkaaq Cultural Archives</h3>
+                          <p>Granite rock face near old mine trail.<br>
+                          Glass dome over stone base, stores oral stories, beadwork, carvings, and maps.<br>
+                          Run by Elders, youth, and historians. Virtual museum access.</p>`,
+                latlng: [54.9, -91.7],
+                icon: landmarkIcon
+            },
+            {
+                name: "Boreal Skyglass Bridge",
+                description: "Glass-bottom bridge, wildlife corridor",
+                details: `<h3 class="font-bold text-lg text-gray-700">Boreal Skyglass Bridge</h3>
+                          <p>Spanning a glacial canyon in southern Atkaaq.<br>
+                          300m glass-bottom bridge, overlooks wildlife corridor.<br>
+                          Solar powered, surrounded by reforested pine zones.</p>`,
+                latlng: [54.2, -93.0],
+                icon: landmarkIcon
+            },
         ];
         
         // Add markers for each location
         locations.forEach(loc => {
-            L.marker(loc.latlng, { icon: loc.icon })
-                .addTo(map)
-                .bindPopup(loc.details);
+            if (loc.latlng && loc.details) {
+                L.marker(loc.latlng, { icon: loc.icon })
+                    .addTo(map)
+                    .bindPopup(loc.details);
+            }
         });
 
         // Optional: Fit map bounds to all markers and boundary
